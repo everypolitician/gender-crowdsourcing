@@ -39,4 +39,22 @@ class Country
     end
     counts.reduce(&:+)
   end
+
+  def consensus
+    @consensus ||= begin
+      totals = {
+        male: 0,
+        female: 0,
+        other: 0
+      }
+      @country_data[:legislatures].each do |legislature|
+        lp = LegislativePeriod.first(country_code: @country_data[:code], legislature_slug: legislature[:slug])
+        consensus = lp.vote_consensus.totals
+        totals[:male] += consensus.count { |k, v| v == 'male' }
+        totals[:female] += consensus.count { |k, v| v == 'female' }
+        totals[:other] += consensus.count { |k, v| v == 'other' }
+      end
+      totals
+    end
+  end
 end

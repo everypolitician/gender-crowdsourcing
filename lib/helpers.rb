@@ -8,10 +8,6 @@ module Helpers
     @country_counts ||= CountryCount.to_hash(:country_code)
   end
 
-  def started_countries
-    @started_countries ||= current_user.responses_dataset.country_codes
-  end
-
   def completed_onboarding?
     current_user && current_user.has_completed_onboarding? ||
       session[:completed_onboarding]

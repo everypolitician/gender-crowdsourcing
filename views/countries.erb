@@ -58,6 +58,13 @@
         <% next unless country_counts[country[:code]] %>
         <a class="list__item" href="<%= url "/countries/#{country[:slug]}" %>">
           <h3><%= country[:country] %></h3>
+          <ul>
+            <li>Female: <%= country.consensus[:female] %></li>
+            <li>Male: <%= country.consensus[:male] %></li>
+            <% if country.consensus[:other] > 0 %>
+            <li>Other: <%= country.consensus[:other] %></li>
+            <% end %>
+          </ul>
           <div class="progress-bar progress-bar--<%= progress_word(percent_complete(country)) %>"><div style="width: <%= percent_complete(country) %>%"></div></div>
         </a>
       <% end %>

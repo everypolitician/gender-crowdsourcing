@@ -99,4 +99,12 @@ class LegislativePeriod < Sequel::Model
       .order(Sequel.desc(:start_date))
       .where('start_date < ?', start_date)
   end
+
+  def vote_consensus
+    @vote_consensus ||= begin
+      legacy_ids = LegacyIdMapper.new(popolo)
+      vote_counts = VoteCounts.new(country_code, legislature_slug, legacy_ids.reverse_map)
+      VoteConsensus.new(vote_counts)
+    end
+  end
 end
