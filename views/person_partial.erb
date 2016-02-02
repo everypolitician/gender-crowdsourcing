@@ -1,10 +1,9 @@
 <li class="person-card person-card--person"
-    data-politician_id="<%== person[:id] %>"
-    data-legislative_period_id="<%= @legislative_period.id %>"
+    data-person_uuid="<%== person[:id] %>"
     data-google-link="https://google.com/search?q=<%== person[:name] %> <%= @legislative_period.country.name %> <%= @legislative_period.legislature.name %>"
 >
-  <% if person[:image] && @legislative_period.available_images.include?(person[:id]) %>
-    <img <%= 'data-' unless preload_image %>src="https://mysociety.github.io/politician-image-proxy/<%= @country.slug %>/<%= @legislature.slug %>/<%= URI.encode_www_form_component(person[:id]) %>/140x140.jpeg" class="person__picture js-person__picture">
+  <% if image_for?(@legislature, person) %>
+    <img <%= 'data-' unless preload_image %>src="<%= image_for(@legislature, person) %>" class="person__picture js-person__picture">
   <% else %>
     <img src="/img/person.png" class="person__picture">
   <% end %>

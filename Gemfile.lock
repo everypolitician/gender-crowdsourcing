@@ -24,7 +24,7 @@ GEM
     docile (1.1.5)
     dotenv (2.0.2)
     erubis (2.7.0)
-    everypolitician (0.5.0)
+    everypolitician (0.6.0)
       everypolitician-popolo
     everypolitician-popolo (0.1.0)
     faraday (0.9.1)

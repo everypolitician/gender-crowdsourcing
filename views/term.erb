@@ -14,13 +14,13 @@
 
 <script>
 window.totals = {
-  male: <%= responses_for_term(@legislative_period, 'male').count %>,
-  female: <%= responses_for_term(@legislative_period, 'female').count %>,
-  other: <%= responses_for_term(@legislative_period, ['other', 'skip']).count %>
+  male: <%= @male_total %>,
+  female: <%= @female_total %>,
+  other: <%= @other_total %>
 };
 </script>
 
-<div class="progress-bar progress-bar--gendered" data-total="<%= @legislative_period.unique_people.size %>"></div>
+<div class="progress-bar progress-bar--gendered" data-total="<%= @legislative_period.csv.map(&:to_hash).uniq { |p| p[:id] }.size %>"></div>
 
 <div class="person-cards">
     <ul class="js-cardswipe">
@@ -35,8 +35,8 @@ window.totals = {
         </div>
         <h2><%= motivational_quote %></h2>
 
-      <% if @legislative_period.previous_legislative_period %>
-        <% previous_count = @legislative_period.previous_legislative_periods.count %>
+      <% if previous_legislative_period(@legislative_period) %>
+        <% previous_count = previous_legislative_periods(@legislative_period).size %>
         <p>
             You have completed <b><%= @legislative_period.name %></b>.
             There <%= previous_count == 1 ? 'is' : 'are' %>

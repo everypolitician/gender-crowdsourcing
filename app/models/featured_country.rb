@@ -15,7 +15,8 @@ class FeaturedCountry < Sequel::Model
           raise ArgumentError, "This country has already been featured. See http://git.io/vcO2x"
         end
         FeaturedCountry.create(
-          country_code: country[:code],
+          country_code: country.code,
+          country_slug: country.slug,
           start_date: DateTime.now,
           end_date: 1.month.from_now
         )

@@ -201,10 +201,10 @@ var saveResponse = function saveResponse(response) {
   delete response.googleLink;
 
   return $.ajax({
-    url: '/responses',
+    url: '/votes',
     method: 'POST',
     data: {
-      response: response
+      vote: response
     }
   });
 }

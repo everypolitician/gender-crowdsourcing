@@ -53,7 +53,7 @@ get '/*.css' do |filename|
 end
 
 get '/' do
-  @leaders = Response.leaders
+  @leaders = Vote.leaders
   if current_user
     erb :home_loggedin
   else
@@ -127,7 +127,7 @@ end
 
 get '/countries' do
   @countries = Everypolitician.countries
-  @recent_countries = current_user.responses_dataset.recent_countries
+  @recent_countries = current_user.recent_countries
   current_featured_country = FeaturedCountry.current
   if current_featured_country
     @featured_country = Everypolitician.country(code: current_featured_country.country_code)
@@ -148,20 +148,25 @@ end
 get '/countries/:country/legislatures/:legislature' do
   @country = Everypolitician.country(slug: params[:country])
   @legislature = @country.legislature(slug: params[:legislature])
-  @legislative_period = current_user.legislative_period_for(@country, @legislature)
+  @legislative_period = current_user.next_unfinished_term_for(@legislature)
   return erb :congratulations unless @legislative_period
-  @people = current_user.people_for(@legislative_period)
+  all_people = @legislative_period.csv.map(&:to_hash).uniq { |p| p[:id] }
+  @male_total = current_user.votes_for_people(all_people, 'male').count
+  @female_total = current_user.votes_for_people(all_people, 'female').count
+  @other_total = current_user.votes_for_people(all_people, %w[other skip]).count
+  already_done = current_user.votes_dataset.map(:person_uuid)
+  @people = all_people.reject { |person| already_done.include?(person[:id]) }.shuffle
   erb :term
 end
 
 get '/_stats' do
-  @players = Response.join(:users, id: :user_id).group_and_count(:users__id)
+  @players = Vote.join(:users, id: :user_id).group_and_count(:users__id)
   erb :stats
 end
 
-post '/responses' do
+post '/votes' do
   begin
-    current_user.record_response(params[:response])
+    current_user.record_vote(params[:vote])
     'ok'
   rescue Sequel::UniqueConstraintViolation
     halt 403, 'Decision already recorded for this politician'
@@ -170,13 +175,5 @@ end
 
 get '/export/:country_slug/:legislature_slug' do |country_slug, legislature_slug|
   content_type 'text/csv;charset=utf-8'
-  country = Everypolitician.country(slug: country_slug)
-  legislature = country.legislature(slug: legislature_slug)
-  legislative_period = LegislativePeriod.first(
-    country_code: country[:code],
-    legislature_slug: legislature_slug
-  )
-  halt 500, "Couldn't find legislative period for #{country_slug} - #{legislature_slug}" if legislative_period.nil?
-  legacy_ids = LegacyIdMapper.new(legislature.popolo)
-  CsvExport.new(country[:code], legislature_slug, legacy_ids.reverse_map).to_csv
+  CsvExport.new(country_slug, legislature_slug).to_csv
 end

@@ -16,6 +16,15 @@ class UpdateCacheJob
         country_count.gender_count = total_people_with_known_gender(country)
       end
       country_count.save
+      country.legislatures.each do |legislature|
+        legislature.popolo.persons.each do |person|
+          CountryUUID.find_or_create(
+            country_slug: country.slug,
+            legislature_slug: legislature.slug,
+            uuid: person[:id]
+          )
+        end
+      end
     end
   end
 
@@ -35,7 +44,7 @@ class UpdateCacheJob
           start_date = "#{start_date}-01-01" if start_date.length == 4
           start_date = "#{start_date}-01" if start_date.length == 7
           lp.start_date = Date.parse(start_date)
-          lp.person_count = lp.unique_people.size
+          lp.person_count = lp.csv.map(&:to_hash).uniq { |p| p[:id] }.size
           lp.save
         end
       end

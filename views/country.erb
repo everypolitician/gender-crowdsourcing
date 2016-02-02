@@ -6,7 +6,7 @@
 
 <% @country.legislatures.each do |legislature| %>
 
-  <% if current_user.legislative_period_for(@country, legislature) %>
+  <% if current_user.next_unfinished_term_for(legislature) %>
     <div class="list list--terms">
         <a class="list__item" href="<%= url "/countries/#{params[:country]}/legislatures/#{legislature.slug}" %>">
             <h3><%= legislature.name %></h3>

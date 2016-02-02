@@ -51,11 +51,8 @@ class LegislativePeriod < Sequel::Model
   def csv
     Sinatra::Application.cache_client.fetch(cache_key, 1.month) do
       csv_url = 'https://cdn.rawgit.com/everypolitician/everypolitician-data/' \
-        "#{legislature[:sha]}/#{legislative_period[:csv]}"
-      csv = CSV.parse(open(csv_url).read, headers: true, header_converters: :symbol)
-      id_map = LegacyIdMapper.new(legislature.popolo)
-      csv.each { |row| row[:id] = id_map[row[:id]] }
-      csv
+        "#{legislature.sha}/#{legislative_period[:csv]}"
+      CSV.parse(open(csv_url).read, headers: true, header_converters: :symbol)
     end
   end
 
